@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIFA 2026 MatchCenter</title>
+  <meta name="description" content="Interactive FIFA 2026 dashboard with fixtures, scores, venues, standings, teams, and match social buzz." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="hero">
+    <div class="hero__glow"></div>
+    <div class="hero__content">
+      <p class="eyebrow">FIFA WORLD CUP 2026</p>
+      <h1>MatchCenter 2026</h1>
+      <p class="sub">104 fixtures. 48 nations. 16 host cities. One interactive command center.</p>
+      <div class="hero__chips">
+        <span id="chipMatchCount">104 Matches</span>
+        <span id="chipLiveCount">Live: 0</span>
+        <span id="chipToday">Today</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="fixtures">Scores & Fixtures</button>
+    <button class="tab" data-tab="teams">Teams & Players</button>
+    <button class="tab" data-tab="standings">Live Standings</button>
+    <button class="tab" data-tab="bracket">Bracket</button>
+    <button class="tab" data-tab="venues">Match Venues</button>
+    <button class="tab" data-tab="fantasy">⚽ Fantasy</button>
+  </nav>
+
+  <main>
+    <section id="fixtures" class="panel active">
+      <div class="panel__top">
+        <h2>Live Scores & Fixtures</h2>
+        <p>Scores update automatically for live matches. Filter by stage, group, or search by team.</p>
+      </div>
+
+      <div class="filters">
+        <label>
+          Stage
+          <select id="stageFilter"></select>
+        </label>
+        <label>
+          Group
+          <select id="groupFilter"></select>
+        </label>
+        <label class="searchWrap">
+          Team search
+          <input id="teamSearch" type="text" placeholder="Search country..." />
+        </label>
+      </div>
+
+      <div id="fixtureList" class="fixtureList"></div>
+    </section>
+
+    <section id="teams" class="panel">
+      <div class="panel__top">
+        <h2>Team Players of Each Country</h2>
+        <p>Projected core squads. Update manually once official final squad lists are released.</p>
+      </div>
+      <div class="filters">
+        <label>
+          Select country
+          <select id="teamSelect"></select>
+        </label>
+        <label>
+          Group
+          <select id="teamGroupFilter"></select>
+        </label>
+      </div>
+      <div id="teamCard" class="teamCard"></div>
+      <div id="allTeamsGrid" class="allTeamsGrid"></div>
+    </section>
+
+    <section id="standings" class="panel">
+      <div class="panel__top">
+        <h2>Live Standings</h2>
+        <p>Standings are calculated from your current score entries for group-stage fixtures.</p>
+      </div>
+      <div id="standingsWrap" class="standingsWrap"></div>
+    </section>
+
+    <section id="bracket" class="panel">
+      <div class="panel__top">
+        <h2>Knockout Bracket</h2>
+        <p>Visual progression from Round of 32 to the Final. Scores update as you enter them.</p>
+      </div>
+      <div id="bracketWrap" class="bracketWrap"></div>
+    </section>
+
+    <section id="venues" class="panel">
+      <div class="panel__top">
+        <h2>Where The Match Is Happening</h2>
+        <p>Browse host venues and jump to maps instantly.</p>
+      </div>
+      <div id="venueGrid" class="venueGrid"></div>
+    </section>
+
+    <!-- FANTASY GAME -->
+    <section id="fantasy" class="panel">
+      <div class="panel__top">
+        <h2>Fantasy World Cup</h2>
+        <p>Build your dream squad of 15 players within a $100M budget. Earn points from real match performances.</p>
+      </div>
+
+      <!-- Auth Area (hidden by default for test user) -->
+      <div id="fantasyAuth" class="fantasyAuth" style="display:none;">
+        <div class="authCard">
+          <h3 id="authTitle">Sign In to Play</h3>
+          <form id="authForm" autocomplete="off">
+            <input type="text" id="authDisplayName" placeholder="Display Name" class="authInput" style="display:none;" />
+            <input type="email" id="authEmail" placeholder="Email" class="authInput" required />
+            <input type="password" id="authPassword" placeholder="Password (min 6 chars)" class="authInput" required minlength="6" />
+            <button type="submit" id="authSubmitBtn" class="btnPrimary">Sign In</button>
+          </form>
+          <p class="authToggle">Don't have an account? <a href="#" id="authToggleLink">Sign Up</a></p>
+          <p id="authError" class="authError"></p>
+        </div>
+      </div>
+
+      <!-- Game Area (shown by default for test user) -->
+      <div id="fantasyGame" class="fantasyGame">
+        <div class="fantasyHeader">
+          <div class="fantasyUserInfo">
+            <span id="fantasyUserName">👤 TestManager</span>
+            <button id="fantasyLogout" class="btnSmall">Logout</button>
+          </div>
+          <div class="fantasyBudget">
+            <span>Budget: <strong id="fantasyBudgetLeft">$100.0M</strong></span>
+            <span>Players: <strong id="fantasyPlayerCount">0/15</strong></span>
+          </div>
+        </div>
+
+        <div class="fantasyTabs">
+          <button class="fTab active" data-ftab="myteam">My Team</button>
+          <button class="fTab" data-ftab="pickplayers">Pick Players</button>
+          <button class="fTab" data-ftab="leaderboard">Leaderboard</button>
+          <button class="fTab" data-ftab="points">Points Table</button>
+        </div>
+
+        <!-- My Team Sub-panel -->
+        <div id="ftab-myteam" class="fPanel active">
+          <div id="myTeamDisplay" class="myTeamDisplay"></div>
+        </div>
+
+        <!-- Pick Players Sub-panel -->
+        <div id="ftab-pickplayers" class="fPanel">
+          <div class="pickFilters">
+            <label>Position
+              <select id="pickPosFilter">
+                <option value="all">All</option>
+                <option value="GK">GK</option>
+                <option value="DEF">DEF</option>
+                <option value="MID">MID</option>
+                <option value="FWD">FWD</option>
+              </select>
+            </label>
+            <label>Country
+              <select id="pickCountryFilter"><option value="all">All Countries</option></select>
+            </label>
+            <label class="searchWrap">Search
+              <input id="pickSearch" type="text" placeholder="Search player name..." />
+            </label>
+          </div>
+          <div id="pickPlayerList" class="pickPlayerList"></div>
+        </div>
+
+        <!-- Leaderboard Sub-panel -->
+        <div id="ftab-leaderboard" class="fPanel">
+          <div id="leaderboardDisplay" class="leaderboardDisplay"></div>
+        </div>
+
+        <!-- Points Table Sub-panel -->
+        <div id="ftab-points" class="fPanel">
+          <div class="pointsRules">
+            <h4>Scoring System</h4>
+            <table class="pointsTable">
+              <thead><tr><th>Action</th><th>GK</th><th>DEF</th><th>MID</th><th>FWD</th></tr></thead>
+              <tbody>
+                <tr><td>Appearance</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+                <tr><td>Goal Scored</td><td>6</td><td>6</td><td>5</td><td>4</td></tr>
+                <tr><td>Assist</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+                <tr><td>Clean Sheet</td><td>4</td><td>4</td><td>1</td><td>0</td></tr>
+                <tr><td>Yellow Card</td><td>-1</td><td>-1</td><td>-1</td><td>-1</td></tr>
+                <tr><td>Red Card</td><td>-3</td><td>-3</td><td>-3</td><td>-3</td></tr>
+                <tr><td>Man of the Match</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+              </tbody>
+            </table>
+            <h4 style="margin-top:1.2rem;">Squad Rules</h4>
+            <ul>
+              <li>15 players total: 2 GK, 5 DEF, 5 MID, 3 FWD</li>
+              <li>Budget: $100M</li>
+              <li>Max 3 players from the same country</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Data sources: FIFA schedule article and official tournament pages. Social feed is a fan pulse board with links to live X search per match.</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="fantasy.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" async></script>
+</body>
+</html>
